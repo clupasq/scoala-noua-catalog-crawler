@@ -1,0 +1,21 @@
+{
+  "name": "scoala-noua-catalog-crawler",
+  "version": "1.0.0",
+  "description": "Simple scoalanoua.ro catalog crawler with login authentication",
+  "main": "src/server.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "crawler",
+    "web-scraper",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "ISC"
+}

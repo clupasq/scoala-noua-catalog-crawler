@@ -4,10 +4,11 @@ A lightweight Node.js web crawler for scoalanoua.ro that performs authenticated 
 
 ## Features
 
-- Zero external dependencies (uses only Node.js built-in modules)
+- Minimal dependencies (cheerio for HTML parsing)
 - Three-step crawling: fetch CSRF token → login with RSA encryption → fetch target page
 - RSA password encryption using Node.js crypto module
 - CSRF token extraction and handling
+- HTML parsing with structured JSON output (student info, grades, absences)
 - Simple HTTP server with JSON responses
 - Docker support with lightweight Alpine image
 - Environment-based configuration (no hardcoded credentials)
@@ -69,6 +70,20 @@ npm run dev
 ```
 
 The server will start on `http://localhost:3000` (or your configured PORT).
+
+### Test the crawler:
+```bash
+npm test
+```
+
+This runs an end-to-end test that:
+- Validates configuration
+- Fetches the login page and extracts CSRF token + RSA key
+- Authenticates with real credentials
+- Fetches and parses the target page
+- Validates the parsed data structure
+
+The test provides detailed output at each step with assertions. If the website structure changes, the test will pinpoint exactly what's missing or broken.
 
 ## Running with Docker
 
@@ -148,12 +163,28 @@ Triggers the crawl process and returns results.
 ```json
 {
   "success": true,
-  "timestamp": "2026-03-29T10:30:00.000Z",
-  "result": {
-    "statusCode": 200,
-    "contentType": "text/html",
-    "data": "..."
-  }
+  "summary": {
+    "overallAverage": 9.63,
+    "totalUnexcusedAbsences": 11,
+    "totalExcusedAbsences": 15
+  },
+  "subjects": [
+    {
+      "name": "Limba română",
+      "grades": [9, 9, 10, 9, 9],
+      "average": 9,
+      "unexcusedAbsences": 2,
+      "excusedAbsences": 1
+    },
+    {
+      "name": "Matematica",
+      "grades": [7, 9, 9, 10, 9],
+      "average": 9,
+      "unexcusedAbsences": 0,
+      "excusedAbsences": 4
+    }
+    // ... more subjects
+  ]
 }
 ```
 
@@ -161,7 +192,6 @@ Triggers the crawl process and returns results.
 ```json
 {
   "success": false,
-  "timestamp": "2026-03-29T10:30:00.000Z",
   "error": "Login failed: 401 Unauthorized"
 }
 ```
@@ -193,9 +223,11 @@ The crawler performs a three-step authentication and crawl process:
 
 3. **Fetch Target Page** (GET `https://www.scoalanoua.ro/elev?summary=1`)
    - Uses session cookies from login
-   - Returns page content
+   - Parses HTML using cheerio
+   - Extracts structured data: student name, grades by subject, averages, absences
+   - Returns clean JSON
 
-All cookies are handled automatically between steps.
+All cookies are handled automatically between steps. The HTML response is parsed into structured JSON with student information, subject grades, averages, and attendance data.
 
 ## Usage Example
 
@@ -215,16 +247,41 @@ The crawler currently returns raw response data. To customize parsing:
 2. Modify the `fetchTargetPage()` function
 3. Add your custom parsing logic for the response data
 
-## Troubleshooting
+## Testing & Troubleshooting
 
-### "Missing required environment variables"
+### Running the test suite
+
+If you suspect the website structure has changed, run the test to diagnose:
+
+```bash
+npm test
+```
+
+The test will show exactly which step fails:
+- **STEP 0**: Login page fetch and token extraction
+- **STEP 1**: Authentication and cookie handling
+- **STEP 2**: Target page fetch
+- **STEP 3**: HTML parsing and data validation
+
+### Common Issues
+
+#### "Missing required environment variables"
 Ensure all required environment variables are set (.env file or docker -e flags).
 
-### "Login failed: 401 Unauthorized"
+#### "Login failed: 401 Unauthorized"
 Check that USERNAME and PASSWORD are correct.
 
-### "No cookies received from login response"
+#### "No cookies received from login response"
 The login endpoint may not be setting session cookies. Check the login URL and response format.
+
+#### "CSRF token not found"
+The login form structure has changed. Look for `<input name="login[_token]">` in the HTML.
+
+#### "RSA public key not found"
+The JavaScript containing the encryption key has changed. Look for `-----BEGIN PUBLIC KEY-----` in the page source.
+
+#### "No subjects found"
+The grades table structure has changed. Check if the `#summary` table still exists with the expected format.
 
 ## License
 

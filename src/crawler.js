@@ -3,6 +3,7 @@
  */
 
 import { config } from './config.js';
+import { parseHtml } from './parser.js';
 import crypto from 'crypto';
 
 /**
@@ -186,16 +187,13 @@ async function fetchTargetPage(cookies) {
       throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
     }
 
-    // Get response as text first
-    const data = await response.text();
+    // Get response as HTML
+    const html = await response.text();
 
-    // TODO: Parse the response according to actual page structure
-    // For now, return raw response data
-    return {
-      statusCode: response.status,
-      contentType: response.headers.get('content-type'),
-      data: data,
-    };
+    // Parse HTML to extract structured data
+    const parsedData = parseHtml(html);
+
+    return parsedData;
   } catch (error) {
     throw new Error(`Fetch error: ${error.message}`);
   }
@@ -221,19 +219,17 @@ export async function crawl() {
 
     // Step 2: Fetch target page
     console.log('Step 2: Fetching target page...');
-    const result = await fetchTargetPage(cookies);
-    console.log('Target page fetched successfully');
+    const parsedData = await fetchTargetPage(cookies);
+    console.log('Target page fetched and parsed successfully');
 
     return {
       success: true,
-      timestamp: new Date().toISOString(),
-      result: result,
+      ...parsedData,
     };
   } catch (error) {
     console.error('Crawl failed:', error.message);
     return {
       success: false,
-      timestamp: new Date().toISOString(),
       error: error.message,
     };
   }

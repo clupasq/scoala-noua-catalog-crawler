@@ -2,7 +2,7 @@
 
 IMAGE_NAME = scoalanoua-crawler
 CONTAINER_NAME = scoalanoua-crawler
-PORT = 3000
+PORT = 1010
 
 help:
 	@echo "Available targets:"
@@ -14,7 +14,7 @@ build:
 
 run:
 	docker run --rm \
-		-p $(PORT):3000 \
+		-p $(PORT):1010 \
 		--env-file .env \
 		--name $(CONTAINER_NAME) \
 		$(IMAGE_NAME)

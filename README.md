@@ -47,7 +47,7 @@ Required environment variables:
 
 Optional environment variables (with defaults):
 
-- `PORT` - Server port (default: 3000)
+- `PORT` - Server port (default: 1010)
 - `LOGIN_PAGE_URL` - Login page URL (default: https://www.scoalanoua.ro/)
 - `LOGIN_URL` - Login POST endpoint (default: https://www.scoalanoua.ro/login)
 - `TARGET_URL` - Target page to crawl (default: https://www.scoalanoua.ro/elev?summary=1)
@@ -69,7 +69,7 @@ npm start
 npm run dev
 ```
 
-The server will start on `http://localhost:3000` (or your configured PORT).
+The server will start on `http://localhost:1010` (or your configured PORT).
 
 ### Test the crawler:
 ```bash
@@ -95,7 +95,7 @@ docker build -t scoalanoua-crawler .
 ### Run the container:
 ```bash
 docker run -d \
-  -p 3000:3000 \
+  -p 1010:1010 \
   -e USERNAME=your_scoalanoua_username \
   -e PASSWORD=your_scoalanoua_password \
   --name scoalanoua-crawler \
@@ -106,7 +106,7 @@ docker run -d \
 Or use environment file:
 ```bash
 docker run -d \
-  -p 3000:3000 \
+  -p 1010:1010 \
   --env-file .env \
   --name scoalanoua-crawler \
   scoalanoua-crawler
@@ -146,7 +146,7 @@ services:
     image: scoalanoua-crawler
     container_name: scoalanoua-crawler
     ports:
-      - "3000:3000"
+      - "1010:1010"
     environment:
       - USERNAME=${USERNAME}
       - PASSWORD=${PASSWORD}
@@ -233,10 +233,10 @@ All cookies are handled automatically between steps. The HTML response is parsed
 
 ```bash
 # Trigger crawl
-curl http://localhost:3000/crawl
+curl http://localhost:1010/crawl
 
 # Check health
-curl http://localhost:3000/health
+curl http://localhost:1010/health
 ```
 
 ## Customization

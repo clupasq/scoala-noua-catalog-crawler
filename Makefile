@@ -18,3 +18,10 @@ run:
 		--env-file .env \
 		--name $(CONTAINER_NAME) \
 		$(IMAGE_NAME)
+
+test:
+	docker run --rm \
+		--env-file .env \
+		--name $(CONTAINER_NAME) \
+		$(IMAGE_NAME) \
+		node src/test.js

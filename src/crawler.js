@@ -93,7 +93,7 @@ async function fetchLoginPage() {
     const response = await fetch(config.loginPageUrl, {
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
       },
     });
 
@@ -149,7 +149,7 @@ async function login(csrfToken, publicKey) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
         'Referer': config.loginPageUrl,
       },
       body: formData.toString(),
@@ -186,13 +186,12 @@ async function login(csrfToken, publicKey) {
  */
 async function fetchTargetPage(cookies) {
   try {
-    const headers = {
-      'Cookie': cookies,
-    };
-
     const response = await fetch(config.targetUrl, {
       method: 'GET',
-      headers: headers,
+      headers: {
+        'Cookie': cookies,
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
+      },
     });
 
     if (!response.ok) {

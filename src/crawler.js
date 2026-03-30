@@ -98,7 +98,8 @@ async function fetchLoginPage() {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch login page: ${response.status} ${response.statusText}`);
+      const bodyText = await response.text().catch(() => 'Could not read response body');
+      throw new Error(`Failed to fetch login page: ${response.status} ${response.statusText}. Response: ${bodyText.substring(0, 500)}`);
     }
 
     const html = await response.text();
@@ -116,6 +117,11 @@ async function fetchLoginPage() {
 
     return { csrfToken, publicKey };
   } catch (error) {
+    console.error('Fetch login page error details:', {
+      message: error.message,
+      url: config.loginPageUrl,
+      stack: error.stack,
+    });
     throw new Error(`Fetch login page error: ${error.message}`);
   }
 }
@@ -152,7 +158,8 @@ async function login(csrfToken, publicKey) {
 
     // Successful login should return 302 redirect
     if (response.status !== 302) {
-      throw new Error(`Login failed: ${response.status} ${response.statusText}`);
+      const bodyText = await response.text().catch(() => 'Could not read response body');
+      throw new Error(`Login failed: ${response.status} ${response.statusText}. Expected 302 redirect. Response: ${bodyText.substring(0, 500)}`);
     }
 
     const cookies = extractCookies(response);
@@ -163,6 +170,11 @@ async function login(csrfToken, publicKey) {
 
     return cookies;
   } catch (error) {
+    console.error('Login error details:', {
+      message: error.message,
+      url: config.loginUrl,
+      stack: error.stack,
+    });
     throw new Error(`Login error: ${error.message}`);
   }
 }
@@ -184,7 +196,8 @@ async function fetchTargetPage(cookies) {
     });
 
     if (!response.ok) {
-      throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
+      const bodyText = await response.text().catch(() => 'Could not read response body');
+      throw new Error(`Fetch failed: ${response.status} ${response.statusText}. Response: ${bodyText.substring(0, 500)}`);
     }
 
     // Get response as HTML
@@ -195,6 +208,11 @@ async function fetchTargetPage(cookies) {
 
     return parsedData;
   } catch (error) {
+    console.error('Fetch target page error details:', {
+      message: error.message,
+      url: config.targetUrl,
+      stack: error.stack,
+    });
     throw new Error(`Fetch error: ${error.message}`);
   }
 }
@@ -228,9 +246,15 @@ export async function crawl() {
     };
   } catch (error) {
     console.error('Crawl failed:', error.message);
+    console.error('Error stack:', error.stack);
     return {
       success: false,
       error: error.message,
+      errorStack: error.stack,
+      errorDetails: {
+        name: error.name,
+        cause: error.cause,
+      },
     };
   }
 }
